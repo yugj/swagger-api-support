@@ -4,11 +4,13 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.servlet.http.HttpServletRequest;
+import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
 
 /**
@@ -20,8 +22,17 @@ public class MultiEnvClient {
 
     private static final String CUSTOM_SERVER_URL_HEADER = "sv-host";
 
-    private static final RestTemplate TEMPLATE = new RestTemplate();
+    private static RestTemplate TEMPLATE = null;
 
+    static {
+        TEMPLATE = new RestTemplate();
+
+        TEMPLATE.getMessageConverters().forEach(httpMessageConverter -> {
+            if(httpMessageConverter instanceof StringHttpMessageConverter){
+                ((StringHttpMessageConverter) httpMessageConverter).setDefaultCharset(StandardCharsets.UTF_8);
+            }
+        });
+    }
     private String serverUrl;
 
     public MultiEnvClient(String serverUrl) {
